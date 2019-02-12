@@ -1,0 +1,39 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+<link rel="stylesheet" type="text/css" href="../../Content/Site.css">
+<script src="../../Scripts/jquery-1.10.2.min.js"></script>
+<script>
+
+    function myFunction() {
+        $('#galleryItems').empty();
+        getRequest($("#textBoxUserInput").val());
+    }
+
+    function getRequest(keyword) {
+        $.getJSON('https://api.github.com/search/repositories?q=' + keyword, callbackFuncWithData);
+    }
+
+    function callbackFuncWithData(data) {
+        localStorage.setItem("jsonData", JSON.stringify(data));
+        var obj = JSON.parse(localStorage.getItem("jsonData"));
+
+        var i;
+        for (i = 0; i < obj.total_count; i++) {
+            $("#galleryItems").append('<div class="gallery"><img src="' + obj.items[i].owner.avatar_url + '" width="600" height="400"><div class="desc">' + obj.items[i].name + '</div><button type="button" onclick="bookmarkClick(' + i + ')">bookmark!</button></div>');
+        }
+    }
+    function bookmarkClick(i) {
+        var obj = JSON.parse(localStorage.getItem("jsonData"));
+        $.post("Home/addBookmark", { rep: JSON.stringify(obj.items[i]) });
+    }
+</script>
+<div>
+    <br>Please enter your search keyword: <br /><input type="text" id="textBoxUserInput"><br><br />
+    <button type="button" onclick="myFunction()">Search</button>
+</div>
+<br />
+<div class="gallery" id="galleryItems">
+
+</div>
